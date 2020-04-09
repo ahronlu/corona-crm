@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3000';
+const API_URL =
+  'https://cors-anywhere.herokuapp.com/https://coronakoftov.herokuapp.com';
 const newCustomerForm = document.getElementById('new-customer-form');
 const editCustomerForm = document.getElementById('edit-customer-form');
 const customerList = document.getElementById('customer-list');
@@ -20,6 +21,7 @@ newCustomerForm.addEventListener('submit', (e) => {
   })
     .then(refreshCustomerList)
     .catch((e) => console.log(e));
+  newCustomerForm.reset();
 });
 
 function createCustomer(customer) {
@@ -34,7 +36,7 @@ function createCustomer(customer) {
 
 function openEditCustomerModal(customer) {
   openModal();
-  editCustomerForm.setAttribute('data-costumer-id', customer.id);
+  editCustomerForm.setAttribute('data-costumer-id', customer._id);
   editCustomerForm.fullName.value = customer.fullName;
   editCustomerForm.email.value = customer.email;
   editCustomerForm.birthDate.value = customer.birthDate;
@@ -90,22 +92,22 @@ function refreshCustomerList() {
     .then((res) => res.json())
     .then((customers) => {
       customerList.innerHTML = '';
-      customers.forEach((customer) => {
-        const row = buildCustomerRow(customer);
+      customers.forEach((customer, i) => {
+        const row = buildCustomerRow(customer, i);
         customerList.appendChild(row);
       });
     })
     .catch((e) => console.log(e));
 }
 
-function buildCustomerRow(customer) {
+function buildCustomerRow(customer, i) {
   const row = document.createElement('tr');
   row.innerHTML = `
-		<td>${customer.id}</td>
+		<td>${i + 1}</td>
 		<td>${customer.fullName}</td>
 		<td>${customer.email}</td>
 		<td>${customer.birthDate}</td>
-		<td>---</td>
+		<td>${customer.createdOn.slice(0, 10)}</td>
 		<td class="text-center">
             <button class="btn btn-sm btn-edit"><i class="far fa-edit"></i></button>
             <button class="btn btn-sm btn-delete"><i class="far fa-trash-alt"></i></button>
@@ -114,7 +116,7 @@ function buildCustomerRow(customer) {
     openEditCustomerModal(customer);
   });
   row.querySelector('.btn-delete').addEventListener('click', () => {
-    deleteCustomer(customer.id)
+    deleteCustomer(customer._id)
       .then(refreshCustomerList)
       .catch((e) => console.log(e));
   });
